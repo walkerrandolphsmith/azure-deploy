@@ -21,6 +21,7 @@ gulp.task('clean-remote', [], function () {
         ftp.rmdir(config.deployment.dest, function(error){
             throw error;
         });
+        ftp.end();
     });
     ftpClient.connect({
         host: config.deployment.host,
