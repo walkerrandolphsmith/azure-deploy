@@ -15,8 +15,7 @@
   "license": "",
   "dependencies": {
     "gulp": "~3.8.1",
-    "gulp-ftp": "~0.3.0",
-    "yargs": "~1.2.6",
+    "gulp-tap": "~0.1.1",
     "ftp": "~0.3.7"
   }
 }

@@ -1,47 +1,46 @@
+'use strict';
+
 var gulp = require('gulp');
-var ftp = require('gulp-ftp');
-var args = require('yargs').argv;
+var tap = require('gulp-tap');
 var FtpClient = require('ftp');
 
-var config = getConfigurationFrom(args);
+var config = getConfigurationFrom(process.env);
 
-gulp.task('default', ['clean-remote'], function () {
-    gulp.src(config.deployment.files)
-        .pipe(ftp({
-            host: config.deployment.host,
-            user: config.deployment.user,
-            password: config.deployment.password,
-            remotePath: config.deployment.dest
-        }));
-});
-
-gulp.task('clean-remote', [], function () {
+gulp.task('ftp', [], function () {
     var ftpClient = new FtpClient();
     ftpClient.on('ready', function () {
-        ftpClient.rmdir(config.deployment.dest, function(error){
-            //throw error;
-        });
+        gulp.src(config.deployment.files)
+            .pipe(tap(function (file, t) {
+                var relativePath = path.relativeTo(file, '/');
+                var publishFile = relativePath + file.path;
+                ftpClient.put(publishFile, publishFile, function (ftpError) {
+                    if (ftpError) {
+                        throw ftpError;
+                    }
+                });
+            }));
         ftpClient.end();
     });
     ftpClient.connect({
         host: config.deployment.host,
         user: config.deployment.user,
-        password: config.deployment.password
+        password: config.deployment.password,
+        debug: console.log
     });
 });
 
-function getConfigurationFrom(args) {
-    var isNotValid = args.host == null || args.user == null || args.password == null || args.deploymentFiles == null;
+function getConfigurationFrom(vars) {
+    var isNotValid = vars.BAMBOO_DEPLOYMENT_HOST == null || vars.BAMBOO_DEPLOYMENT_USER == null || vars.BAMBOO_DEPLOYMENT_PASSWORD == null || vars.BAMBOO_DEPLOYMENT_FILES == null;
     if (isNotValid) {
-        throw 'Error: No deployment files were specified';
+        throw 'Error: Not all environment variables have been defined';
     }
     var config = {
         deployment: {}
     };
-    config.deployment.files = JSON.parse(args.deploymentFiles);
-    config.deployment.host = args.host;
-    config.deployment.user = args.user;
-    config.deployment.password = args.password;
-    config.deployment.dest = args.dest || '/site/wwwroot';
+    config.deployment.files = JSON.parse(vars.BAMBOO_DEPLOYMENT_FILES);
+    config.deployment.host = vars.BAMBOO_DEPLOYMENT_HOST;
+    config.deployment.user = vars.BAMBOO_DEPLOYMENT_USER;
+    config.deployment.password = vars.BAMBOO_DEPLOYMENT_PASSWORD;
+    config.deployment.dest = vars.BAMBOO_DEPLOYMENT_DEST || '/site/wwwroot';
     return config;
 }
