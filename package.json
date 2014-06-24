@@ -1,0 +1,21 @@
+{
+  "name": "azure-deployment-scripts",
+  "version": "0.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:wearesoftwarecraftsmen/azure-deployment-scripts.git"
+  },
+  "author": "We are Software Craftsmen",
+  "license": "",
+  "dependencies": {
+    "gulp": "~3.8.1",
+    "gulp-ftp": "~0.3.0",
+    "yargs": "~1.2.6"
+  }
+}
