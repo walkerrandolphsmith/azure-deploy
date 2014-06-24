@@ -4,9 +4,6 @@ var args = require('yargs').argv;
 
 gulp.task('default', [], function () {
     var config = getConfigurationFrom(args);
-    if (config.isNotValid()) {
-        throw 'Error: No deployment files were specified';
-    }
     gulp.src(config.deployment.files)
         .pipe(ftp({
             host: config.deployment.host,
