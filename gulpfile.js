@@ -19,7 +19,7 @@ gulp.task('clean-remote', [], function () {
     var ftpClient = new FtpClient();
     ftpClient.on('ready', function () {
         ftpClient.rmdir(config.deployment.dest, function(error){
-            throw error;
+            //throw error;
         });
         ftpClient.end();
     });
