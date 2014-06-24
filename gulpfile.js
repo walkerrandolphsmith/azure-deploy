@@ -18,10 +18,10 @@ gulp.task('default', ['clean-remote'], function () {
 gulp.task('clean-remote', [], function () {
     var ftpClient = new FtpClient();
     ftpClient.on('ready', function () {
-        ftp.rmdir(config.deployment.dest, function(error){
+        ftpClient.rmdir(config.deployment.dest, function(error){
             throw error;
         });
-        ftp.end();
+        ftpClient.end();
     });
     ftpClient.connect({
         host: config.deployment.host,
