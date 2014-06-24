@@ -42,6 +42,6 @@ function getConfigurationFrom(args) {
     config.deployment.host = args.host;
     config.deployment.user = args.user;
     config.deployment.password = args.password;
-    config.deployment.dest = args.dest || 'site/wwwroot';
+    config.deployment.dest = args.dest || '/site/wwwroot';
     return config;
 }
