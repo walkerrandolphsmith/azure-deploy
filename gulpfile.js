@@ -11,7 +11,7 @@ gulp.task('ftp', [], function () {
     ftpClient.on('ready', function () {
         gulp.src(config.deployment.files)
             .pipe(tap(function (file, t) {
-                var relativePath = path.relativeTo(file, '/');
+                var relativePath = path.relative(file, '/');
                 var publishFile = relativePath + file.path;
                 ftpClient.put(publishFile, publishFile, function (ftpError) {
                     if (ftpError) {
@@ -30,17 +30,17 @@ gulp.task('ftp', [], function () {
 });
 
 function getConfigurationFrom(vars) {
-    var isNotValid = vars.BAMBOO_DEPLOYMENT_HOST == null || vars.BAMBOO_DEPLOYMENT_USER == null || vars.BAMBOO_DEPLOYMENT_PASSWORD == null || vars.BAMBOO_DEPLOYMENT_FILES == null;
+    var isNotValid = vars.bamboo_deployment_host == null || vars.bamboo_deployment_user == null || vars.bamboo_deployment_password == null || vars.bamboo_deployment_files == null;
     if (isNotValid) {
         throw 'Error: Not all environment variables have been defined';
     }
     var config = {
         deployment: {}
     };
-    config.deployment.files = JSON.parse(vars.BAMBOO_DEPLOYMENT_FILES);
-    config.deployment.host = vars.BAMBOO_DEPLOYMENT_HOST;
-    config.deployment.user = vars.BAMBOO_DEPLOYMENT_USER;
-    config.deployment.password = vars.BAMBOO_DEPLOYMENT_PASSWORD;
-    config.deployment.dest = vars.BAMBOO_DEPLOYMENT_DEST || '/site/wwwroot';
+    config.deployment.files = JSON.parse(vars.bamboo_deployment_files);
+    config.deployment.host = vars.bamboo_deployment_host;
+    config.deployment.user = vars.bamboo_deployment_user;
+    config.deployment.password = vars.bamboo_deployment_password;
+    config.deployment.dest = vars.bamboo_deployment_dest || '/site/wwwroot';
     return config;
 }
