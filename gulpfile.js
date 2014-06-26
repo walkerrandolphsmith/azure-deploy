@@ -3,6 +3,7 @@
 var gulp = require('gulp');
 var tap = require('gulp-tap');
 var FtpClient = require('ftp');
+var path = require('path');
 
 var config = getConfigurationFrom(process.env);
 
