@@ -25,7 +25,6 @@ gulp.task('ftp', [], function () {
                     }
                 });
             }));
-        ftpClient.end();
     });
     ftpClient.connect({
         host: config.deployment.host,
