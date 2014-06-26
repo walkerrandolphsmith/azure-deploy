@@ -12,7 +12,7 @@ gulp.task('ftp', [], function () {
     ftpClient.on('ready', function () {
         gulp.src(config.deployment.files)
             .pipe(tap(function (file, t) {
-                var relativePath = path.relative(file.basename, '/');
+                var relativePath = path.relative(file.path, '/');
                 var publishFile = relativePath + file.path;
                 ftpClient.put(publishFile, publishFile, function (ftpError) {
                     if (ftpError) {
