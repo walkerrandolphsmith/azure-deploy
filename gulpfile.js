@@ -10,6 +10,11 @@ var config = getConfigurationFrom(process.env);
 gulp.task('ftp', [], function () {
     var ftpClient = new FtpClient();
     ftpClient.on('ready', function () {
+        ftpClient.cwd(config.deployment.dest, function (ftpError, currentDirector) {
+            if (ftpError) {
+                throw ftpError;
+            }
+        });
         gulp.src(config.deployment.files)
             .pipe(tap(function (file, t) {
                 var relativePath = path.relative(file.path, '/');
