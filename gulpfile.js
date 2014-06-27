@@ -2,50 +2,71 @@
 
 var gulp = require('gulp');
 var tap = require('gulp-tap');
-var FtpClient = require('ftp');
+var FtpClient = require('jsftp');
 var path = require('path');
+var q = require('q');
+var ftp = require('gulp-ftp');
 
-var config = getConfigurationFrom(process.env);
+var config;
+var ftpClient;
 
-gulp.task('ftp', [], function () {
-    var ftpClient = new FtpClient();
-    ftpClient.on('ready', function () {
-        ftpClient.cwd(config.deployment.dest, function (ftpError, currentDirector) {
-            if (ftpError) {
-                throw ftpError;
-            }
-        });
-        gulp.src(config.deployment.files)
-            .pipe(tap(function (file, t) {
-                var relativePath = path.relative(file.path, '/');
-                var publishFile = relativePath + file.path;
-                ftpClient.put(publishFile, publishFile, function (ftpError) {
-                    if (ftpError) {
-                        throw ftpError;
-                    }
-                });
-            }));
-    });
-    ftpClient.connect({
+gulp.task('ftp', ['ftp-upload-site'], function () {
+//    ftpClient.raw.quit(function (ftpError, data) {
+//        processError(ftpError);
+//    })
+});
+
+gulp.task('ftp-connect', [], function () {
+    config = getFtpConfigurationFrom(process.env);
+    ftpClient = new FtpClient({
         host: config.deployment.host,
         user: config.deployment.user,
-        password: config.deployment.password,
-        debug: console.log
+        pass: config.deployment.password,
+        debugMode: config.deployment.ftpDebug
+    });
+    ftpClient.on('jsftp_debug', function (eventType, data) {
+        console.log('DEBUG: ', eventType);
+        console.log(JSON.stringify(data, null, 2));
     });
 });
 
-function getConfigurationFrom(vars) {
-    var isNotValid = vars.bamboo_deployment_host == null || vars.bamboo_deployment_user == null || vars.bamboo_deployment_password == null || vars.bamboo_deployment_files == null;
-    if (isNotValid) {
-        throw 'Error: Not all environment variables have been defined';
-    }
-    var config = {
-        deployment: {}
-    };
+gulp.task('ftp-upload-site', [], function () {
+    config = getFtpConfigurationFrom(process.env);
+    return gulp.src(config.deployment.files)
+        .pipe(ftp({
+            user: config.deployment.user,
+            pass: config.deployment.password,
+            host: config.deployment.host,
+            remotePath: config.deployment.dest
+        }));
+});
+
+gulp.task('ftp-reset-site', ['ftp-connect'], function () {
+    var deferSiteReset = q.defer();
+    ftpClient.raw.cwd(config.deployment.dest, function (ftpError) {
+        processError(ftpError);
+    });
+    ftpClient.ls(config.deployment.dest, function (error, results) {
+        processError(error);
+        console.log(results);
+        deferSiteReset.resolve();
+    });
+    return deferSiteReset.promise;
+});
+
+function getFtpConfigurationFrom(vars) {
+    var config = {deployment: {}};
     config.deployment.files = JSON.parse(vars.bamboo_deployment_files);
     config.deployment.host = vars.bamboo_deployment_host;
     config.deployment.user = vars.bamboo_deployment_user;
     config.deployment.password = vars.bamboo_deployment_password;
     config.deployment.dest = vars.bamboo_deployment_dest || '/site/wwwroot';
+    config.deployment.ftpDebug = false;
     return config;
+}
+
+function processError(error) {
+    if (error) {
+        throw error;
+    }
 }
